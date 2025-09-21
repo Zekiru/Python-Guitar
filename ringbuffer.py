@@ -2,62 +2,53 @@
 
 class RingBuffer:
     def __init__(self, capacity: int):
-        '''
-        Create an empty ring buffer, with given max capacity
-        '''
-        # TO-DO: implement this
+        # Create an empty ring buffer, with given max capacity
         self.MAX_CAP = capacity
-        self._front = # to-do
-        self._rear =  # to-do
-        self.buffer = # to-do
+        self._front = 0
+        self._rear = 0
+        self.buffer = [None] * capacity
 
     def size(self) -> int:
-        '''
-        Return number of items currently in the buffer
-        '''
-        # TO-DO: implement this
+        # Return number of items currently in the buffer
+        size = 0
+        for i in self.buffer:
+            if i != None: size += 1
+        return size
 
     def is_empty(self) -> bool:
-        '''
-        Is the buffer empty (size equals zero)?
-        '''
-        # TO-DO: implement this
+        # Is the buffer empty (size equals zero)?
+        return self.size() == 0
         
     def is_full(self) -> bool:
-        '''
-        Is the buffer full (size equals capacity)?
-        '''
-        # TO-DO: implement this
+        # Is the buffer full (size equals capacity)?
+        return self.size() == self.MAX_CAP
 
     def enqueue(self, x: float):
-        '''
-        Add item `x` to the end
-        '''
-        # TO-DO: implement this
+        # Add item `x` to the end
+        if self.is_full(): raise RingBufferFull("Ring buffer is full")
+        self.buffer[self._rear] = x
+        self._rear = (self._rear + 1) % self.MAX_CAP
 
     def dequeue(self) -> float:
-        '''
-        Return and remove item from the front
-        '''
-        # TO-DO: implement this
+        # Return and remove item from the front
+        if self.is_empty(): raise RingBufferEmpty("Ring buffer is empty")
+        value = self.buffer[self._front]
+        self.buffer[self._front] = None
+        self._front = (self._front + 1) % self.MAX_CAP
+        return value
 
     def peek(self) -> float:
-        '''
-        Return (but do not delete) item from the front
-        '''
-        # TO-DO: implement this
+        # Return (but do not delete) item from the front
+        if self.is_empty(): raise RingBufferEmpty("Ring buffer is empty")
+        return self.buffer[self._front]
 
 
 class RingBufferFull(Exception):
-    '''
-    The exception raised when the ring buffer is full when attempting to
-    enqueue.
-    '''
+    # The exception raised when the ring buffer is full when attempting to
+    # enqueue.
     pass
 
 class RingBufferEmpty(Exception):
-    '''
-    The exception raised when the ring buffer is empty when attempting to
-    dequeue or peek.
-    '''
+    # The exception raised when the ring buffer is empty when attempting to
+    # dequeue or peek.
     pass
