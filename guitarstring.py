@@ -31,6 +31,7 @@ class GuitarString:
         # Set the buffer to white noise
         for _ in range(self.buffer.size()): self.buffer.dequeue()
         for _ in range(self.capacity): self.buffer.enqueue(random.uniform(-0.5, 0.5))
+        self.tick_count = 0
 
     def tick(self):
         # Advance the simulation one time step by applying the Karplus--Strong update
