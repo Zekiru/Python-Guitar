@@ -5,8 +5,15 @@ from stdaudio import play_sample
 import stdkeys
 
 KEYS = "q2we4r5ty7u8i9op-[=]"
-THRESHOLD = 1e-4
-TIME = 30000
+THRESHOLD = 1e-8
+
+def clampSample(x: float) -> float:
+    # clamp into valid float range when playing the sample
+    if x > 1.0:
+        return 1.0
+    elif x < -1.0:
+        return -1.0
+    return x
 
 if __name__ == '__main__':
     # initialize window
@@ -34,10 +41,11 @@ if __name__ == '__main__':
                 keymap[key].pluck()
 
         # compute the superposition of samples
-        sample = sum(key.sample() for key in keymap.values() if key.time() <= TIME and abs(key.sample()) >= THRESHOLD)
+        sample = clampSample(sum(key.sample() for key in keymap.values()))
 
         # play the sample on standard audio
         play_sample(sample)
 
         # advance the simulation of each guitar string by one step
-        for key in keymap.values(): key.tick()
+        for key in keymap.values():
+            if abs(key.sample()) >= THRESHOLD: key.tick() 
