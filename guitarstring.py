@@ -13,7 +13,7 @@ class GuitarString:
         self.tick_count = 0
         self.capacity = ceil(SAMP_RATE/frequency)
         self.buffer = RingBuffer(self.capacity)
-        for _ in range(self.capacity): self.buffer.enqueue(0)
+        self.zero()
 
     @classmethod
     def make_from_array(cls, init: list[int]):
@@ -29,7 +29,7 @@ class GuitarString:
 
     def pluck(self):
         # Set the buffer to white noise
-        for _ in range(self.buffer.size()): self.buffer.dequeue()
+        self.empty()
         for _ in range(self.capacity): self.buffer.enqueue(random.uniform(-0.5, 0.5))
 
     def tick(self):
@@ -47,3 +47,13 @@ class GuitarString:
     def time(self) -> int:
         # Return the number of ticks so far
         return self.tick_count
+
+    def zero(self):
+        # Fill the buffer with zeroes
+        self.empty()
+        for _ in range(self.capacity): self.buffer.enqueue(0)
+
+    def empty(self):
+        # Reset buffer queue and tick count
+        self.tick_count = 0
+        for _ in range(self.buffer.size()): self.buffer.dequeue()

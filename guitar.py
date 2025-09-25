@@ -6,8 +6,9 @@ import stdkeys
 
 KEYS = "q2we4r5ty7u8i9op-[=]"
 THRESHOLD = 1e-8
+DURATION = 2e5
 
-def clampSample(x: float) -> float:
+def clamp_sample(x: float) -> float:
     # clamp into valid float range when playing the sample
     if x > 1.0:
         return 1.0
@@ -19,10 +20,11 @@ if __name__ == '__main__':
     # initialize window
     stdkeys.create_window()
 
+    # create dict to relate the character to the GuitarString Object
     keymap = {}
-    for i, key in enumerate(KEYS):
+    for i, k in enumerate(KEYS):
         frequency = 440 * (1.059463 ** (i - 12))
-        keymap[key] = GuitarString(frequency)
+        keymap[k] = GuitarString(frequency)
 
     n_iters = 0
     while True:
@@ -36,16 +38,20 @@ if __name__ == '__main__':
 
         # check if the user has typed a key; if so, process it
         if stdkeys.has_next_key_typed():
-            key = stdkeys.next_key_typed()
-            if key in keymap:
-                keymap[key].pluck()
+            k = stdkeys.next_key_typed()
+            if k in keymap:
+                keymap[k].pluck()
 
         # compute the superposition of samples
-        sample = clampSample(sum(key.sample() for key in keymap.values()))
+        sample = clamp_sample(sum(k.sample() for k in keymap.values()))
 
         # play the sample on standard audio
         play_sample(sample)
 
         # advance the simulation of each guitar string by one step
-        for key in keymap.values():
-            if abs(key.sample()) >= THRESHOLD: key.tick() 
+        for k in KEYS:
+            magnitude = abs(keymap[k].sample())
+            if 0 < magnitude < THRESHOLD or DURATION <= keymap[k].time():
+                keymap[k].zero()
+                continue
+            if 0 < magnitude: keymap[k].tick()
