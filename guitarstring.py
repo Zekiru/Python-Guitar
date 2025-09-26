@@ -10,10 +10,8 @@ DECAY = 0.996
 class GuitarString:
     def __init__(self, frequency: float):
         # Create a guitar string of the given frequency, using a sampling rate of 44100 Hz
-        self.tick_count = 0
         self.capacity = ceil(SAMP_RATE/frequency)
-        self.buffer = RingBuffer(self.capacity)
-        self.zero()
+        self.zero_buffer()
 
     @classmethod
     def make_from_array(cls, init: list[int]):
@@ -29,7 +27,7 @@ class GuitarString:
 
     def pluck(self):
         # Set the buffer to white noise
-        self.empty()
+        self.empty_buffer()
         for _ in range(self.capacity): self.buffer.enqueue(random.uniform(-0.5, 0.5))
 
     def tick(self):
@@ -48,12 +46,12 @@ class GuitarString:
         # Return the number of ticks so far
         return self.tick_count
 
-    def zero(self):
+    def zero_buffer(self):
         # Fill the buffer with zeroes
-        self.empty()
+        self.empty_buffer()
         for _ in range(self.capacity): self.buffer.enqueue(0)
 
-    def empty(self):
+    def empty_buffer(self):
         # Reset buffer queue and tick count
+        self.buffer = RingBuffer(self.capacity)
         self.tick_count = 0
-        for _ in range(self.buffer.size()): self.buffer.dequeue()

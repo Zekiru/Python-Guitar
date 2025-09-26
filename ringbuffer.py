@@ -26,7 +26,7 @@ class RingBuffer:
         if self.is_full(): raise RingBufferFull("Ring buffer is full")
         self.buffer[self._rear] = x
         self._rear += 1
-        if self._rear >= self.MAX_CAP: self._rear = 0
+        if self.MAX_CAP <= self._rear : self._rear = 0
         self._size += 1
 
     def dequeue(self) -> float:
@@ -35,7 +35,7 @@ class RingBuffer:
         value = self.buffer[self._front]
         self.buffer[self._front] = None
         self._front += 1
-        if self._front >= self.MAX_CAP: self._front = 0
+        if self.MAX_CAP == self._front: self._front = 0
         self._size -= 1
         return value
 
