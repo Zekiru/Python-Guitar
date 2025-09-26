@@ -21,7 +21,12 @@ def clamp_sample(x: float) -> float:
 
 def sample(keymap) -> float:
     # compute the superposition of samples
-    return clamp_sample(sum(k.sample() for k in keymap.values()))
+    s = 0.0
+    for k in keymap.values():
+        ks = k.sample()
+        if ks != 0: s += ks
+    s = clamp_sample(s)
+    return round(s, 4)
 
 def advance(keymap):
     # advance the simulation of each guitar string by one step
