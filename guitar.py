@@ -5,7 +5,11 @@ from stdaudio import play_sample
 import stdkeys
 
 KEYS = "q2we4r5ty7u8i9op-[=]"
-DURATION = 3e5
+BASE = 1.059463
+FREQ = [440 * (BASE ** (i - 12)) for i in range(len(KEYS))]
+
+MIN_DECAY = 0.990
+MAX_DECAY = 0.988
 
 def clamp_sample(x: float) -> float:
     # clamp into valid float range when playing the sample
@@ -22,11 +26,11 @@ def sample(keymap) -> float:
 def advance(keymap):
     # advance the simulation of each guitar string by one step
     for k in KEYS:
-        magnitude = abs(keymap[k].sample())
-        if DURATION <= keymap[k].time():
+        if not 0 < abs(keymap[k].sample()): continue
+        if not keymap[k].has_sustain():
             keymap[k].zero_buffer()
             continue
-        if 0 < magnitude: keymap[k].tick()
+        keymap[k].tick()
 
 if __name__ == '__main__':
     # initialize window
@@ -35,8 +39,17 @@ if __name__ == '__main__':
     # create dict to relate the characters to the GuitarString Objects
     keymap = {}
     for i, k in enumerate(KEYS):
-        frequency = 440 * (1.059463 ** (i - 12))
-        keymap[k] = GuitarString(frequency)
+        frequency = FREQ[i]
+        gs = GuitarString(frequency)
+
+        f_min = min(FREQ)
+        f_max = max(FREQ)
+
+        # linear interpolation from f_min..f_max => low_decay..high_decay
+        decay = MIN_DECAY - ((MIN_DECAY - MAX_DECAY) * ((frequency - f_min) / (f_max - f_min)))
+
+        gs.set_decay(decay)
+        keymap[k] = gs
 
     n_iters = 0
     while True:
