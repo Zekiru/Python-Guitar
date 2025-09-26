@@ -52,7 +52,7 @@ class GuitarString:
         # Return the number of ticks so far
         return self.tick_count
     
-    # Other useful functions below:
+    # Other useful methods below:
 
     def set_decay(self, decay: float):
         # Modify decay while adjusting sustain 

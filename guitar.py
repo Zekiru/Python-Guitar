@@ -8,25 +8,24 @@ KEYS = "q2we4r5ty7u8i9op-[=]"
 BASE = 1.059463
 FREQ = [440 * (BASE ** (i - 12)) for i in range(len(KEYS))]
 
-MIN_DECAY = 0.990
-MAX_DECAY = 0.988
+LOW_DECAY = 0.990
+HIGH_DECAY = 0.988
 
-def clamp_sample(x: float) -> float:
-    # clamp into valid float range when playing the sample
-    max = 1.0
-    min = -max
-    if x > max: return max
-    elif x < min: return min
-    return x
+def normalize(x: float) -> float:
+    # clamp and round the audio sample to keep it safe for play_sample()
+    if x > 1.0:
+        x = 1.0
+    elif x < -1.0:
+        x = -1.0
+    return round(x, 4)
 
 def sample(keymap) -> float:
     # compute the superposition of samples
-    s = 0.0
+    sample = 0.0
     for k in keymap.values():
-        ks = k.sample()
-        if ks != 0: s += ks
-    s = clamp_sample(s)
-    return round(s, 4)
+        s = k.sample()
+        if 1e-4 < abs(s): sample += s
+    return normalize(sample)
 
 def advance(keymap):
     # advance the simulation of each guitar string by one step
@@ -51,7 +50,7 @@ if __name__ == '__main__':
         f_max = max(FREQ)
 
         # linear interpolation from f_min..f_max => low_decay..high_decay
-        decay = MIN_DECAY - ((MIN_DECAY - MAX_DECAY) * ((frequency - f_min) / (f_max - f_min)))
+        decay = LOW_DECAY - ((LOW_DECAY - HIGH_DECAY) * ((frequency - f_min) / (f_max - f_min)))
 
         gs.set_decay(decay)
         keymap[k] = gs
