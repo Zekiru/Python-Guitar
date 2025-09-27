@@ -1,9 +1,9 @@
 # Python Guitar
 
 ## Contents
-- [Setup](https://github.com/Zekiru/Python-Guitar/blob/main/README.md#setup)
-- [Testing](https://github.com/Zekiru/Python-Guitar/blob/main/README.md#testing)
-- [Running](https://github.com/Zekiru/Python-Guitar/blob/main/README.md#running)
+- [Setup](#setup)
+- [Testing](#testing)
+- [Running](#running)
 
 ## Setup
 
