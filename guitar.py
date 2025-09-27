@@ -31,7 +31,7 @@ def advance(keymap):
     # reset strings to 0 when they cannot be heard
     for k in KEYS:
         if 0 == keymap[k].sample(): continue
-        if not keymap[k].has_sustain():
+        if not keymap[k].is_sustained():
             keymap[k].zero_buffer()
             continue
         keymap[k].tick()

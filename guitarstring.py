@@ -16,7 +16,7 @@ class GuitarString:
         self.tick_count = 0
         
         self.decay = DECAY
-        self.sustain = int(self.capacity * (1.0 / (1.0 - self.decay) * 5))
+        self.decay_time = int(self.capacity * (1.0 / (1.0 - self.decay) * 5))
         self.zero_buffer()
 
     @classmethod
@@ -55,13 +55,13 @@ class GuitarString:
     # Other useful methods below:
 
     def set_decay(self, decay: float):
-        # Modify decay while adjusting sustain 
+        # Modify decay while adjusting decay time 
         self.decay = decay
-        self.sustain = int(self.capacity * (1.0 / (1.0 - decay) * 5))
+        self.decay_time = int(self.capacity * (1.0 / (1.0 - decay) * 5))
     
-    def has_sustain(self) -> bool:
+    def is_sustained(self) -> bool:
         # Return True if this string should still ring
-        return self.time() < self.sustain
+        return self.time() < self.decay_time
 
     def zero_buffer(self):
         # Fill the buffer with zeroes
