@@ -7,30 +7,30 @@ import stdkeys
 KEYS = "q2we4r5ty7u8i9op-[=]"
 BASE = 1.059463
 FREQ = [440 * (BASE ** (i - 12)) for i in range(len(KEYS))]
+ROUND = 4 # round sample by int n digits, where n > 3 (noise present for n <= 3)
 
 LOW_DECAY = 0.990
 HIGH_DECAY = 0.988
 
-def normalize(x: float) -> float:
-    # clamp and round the audio sample to keep it safe for play_sample()
-    if x > 1.0:
-        x = 1.0
-    elif x < -1.0:
-        x = -1.0
-    return round(x, 4)
-
 def sample(keymap) -> float:
     # compute the superposition of samples
+    # clamp and round the audio sample
+    # to make it safe and easy for play_sample() to process
+    lim = 1.0
+    min = 10**(-(ROUND + 1))
     sample = 0.0
     for k in keymap.values():
         s = k.sample()
-        if 1e-4 < abs(s): sample += s
-    return normalize(sample)
+        if min <= abs(s): sample += s
+    if abs(sample) > lim: sample = lim if sample > 0 else -lim
+    return round(sample, ROUND)
 
 def advance(keymap):
     # advance the simulation of each guitar string by one step
+    # exclude processing of strings that are not playing
+    # reset strings to 0 when they cannot be heard
     for k in KEYS:
-        if not 0 < abs(keymap[k].sample()): continue
+        if 0 == keymap[k].sample(): continue
         if not keymap[k].has_sustain():
             keymap[k].zero_buffer()
             continue
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     # initialize window
     stdkeys.create_window()
 
-    # create dict to relate the characters to the GuitarString Objects
+    # create dictionary to relate the each char to each GuitarString
     keymap = {}
     for i, k in enumerate(KEYS):
         frequency = FREQ[i]
@@ -49,7 +49,8 @@ if __name__ == '__main__':
         f_min = min(FREQ)
         f_max = max(FREQ)
 
-        # linear interpolation from f_min..f_max => low_decay..high_decay
+        # extra: decay factor dependent on frequency
+        # linear interpolation from f_min...f_max => low_decay...high_decay
         decay = LOW_DECAY - ((LOW_DECAY - HIGH_DECAY) * ((frequency - f_min) / (f_max - f_min)))
 
         gs.set_decay(decay)
